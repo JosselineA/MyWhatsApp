@@ -20,8 +20,8 @@
         <div class="row margin">
           <div class="input-field col s12">
             <i class="mdi-social-person-outline prefix"></i>
-            <input class="validate" id="usuario" type="text">
-            <label for="usuario" data-error="wrong" data-success="right" class="center-align">Usuario</label>
+            <input class="validate" id="usuario" type="text" placeholder="usuario">
+           
           </div>
         </div>
      <div class="row">

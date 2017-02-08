@@ -11,7 +11,7 @@
 	socket_listen($socket);
 
 	$contador = 1;
-	$clients = array($socket);
+	$clients = array(array('socket'=>$socket,'name'=>""));
 	while(true){
 		//Realizamos una copia de los clientes ya que serán modificados en el siguiente método
 		$changed = getSockets();
@@ -63,6 +63,7 @@
 					$response_text = mask(json_encode(array('type'=> 'sucess')));
 
 					send_message($response_text, $changed_socket); //send data
+
 					break;
 			}
 			
