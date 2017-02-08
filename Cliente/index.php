@@ -13,7 +13,7 @@
       <form class="login-form">
         <div class="row">
           <div class="input-field col s12 center">
-            <img src="img/logo.png" alt="" class="responsive-img valign profile-image-login">
+            <img src="img/logo3.png" alt="" class="responsive-img valign profile-image-login">
           </div>
         </div>
         <div class="row margin">
