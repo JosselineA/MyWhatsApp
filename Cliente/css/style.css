@@ -1,0 +1,15 @@
+html,
+#login {
+    height: 100%;
+}
+html {
+    display: table;
+    margin: auto;
+}
+#login {
+    display: table-cell;
+    vertical-align: middle;
+}
+.margin {
+  margin: 0 !important;
+}
