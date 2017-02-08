@@ -14,7 +14,7 @@
 	$clients = array($socket);
 	while(true){
 		//Realizamos una copia de los clientes ya que serán modificados en el siguiente método
-		$changed = $clients;
+		$changed = getSockets();
 		//Checa durante 10 segundos si algun cliente se quiere conectar y los almacena en el array $changed
 		socket_select($changed, $null, $null, 0, 10);
 
@@ -31,9 +31,9 @@
 
 			socket_read($socket_new, 1024); 
 
-			$clients[] = array('socket' => $socket_new, 'name' => ++$contador); //add socket to client array
+			$clients[] = array('socket' => $socket_new, 'name' => ++$contador+""); //add socket to client array
 
-			$response_text = mask(json_encode(array('id'=>$contador)));
+			$response_text = mask(json_encode(array('type'=> 'id','id'=>$contador)));
 
 			send_message($response_text, $socket_read); //send data
 
@@ -42,6 +42,48 @@
 			$found_socket = array_search($socket, $changed);
 			unset($changed[$found_socket]);
 		}
+		//loop through all connected sockets
+	foreach ($changed as $changed_socket) {	
+		
+		//check for any incomming data
+		while(socket_recv($changed_socket, $buf, 1024, 0) >= 1)
+		{
+			$received_text = unmask($buf); //unmask data
+			$tst_msg = json_decode($received_text); //json decode 
+			/*$user_name = $tst_msg->name; //sender name
+			$user_message = $tst_msg->message; //message text
+			$user_color = $tst_msg->color; //color*/
+
+			switch($tst_msg->type){
+				case "setID":
+					$id = $tst_msg-> i; 
+					$usuario = $tst_msg->name;
+					setUsuario($id,$usuario); 
+
+					$response_text = mask(json_encode(array('type'=> 'sucess')));
+
+					send_message($response_text, $changed_socket); //send data
+					break;
+			}
+			
+			//prepare data to be sent to client
+			$response_text = mask(json_encode(array('type'=>'usermsg', 'name'=>$user_name, 'message'=>$user_message, 'color'=>$user_color)));
+			send_message($response_text); //send data
+			break 2; //exist this loop
+		}
+		
+		$buf = @socket_read($changed_socket, 1024, PHP_NORMAL_READ);
+		if ($buf === false) { // check disconnected client
+			// remove client for $clients array
+			$found_socket = array_search($changed_socket, $clients);
+			socket_getpeername($changed_socket, $ip);
+			unset($clients[$found_socket]);
+			
+			//notify all users about disconnected connection
+			$response = mask(json_encode(array('type'=>'system', 'message'=>$ip.' disconnected')));
+			send_message($response);
+		}
+	}
 
 
 
@@ -79,8 +121,30 @@
 		}
 	}*/
 }
-socket_close($socket);
 
+socket_close($socket);
+function setUsuario($id,$usuario){
+  global $clients;
+  $aux = array();
+  foreach ($clients as $socket) {
+
+    if ($socket['name'] == $id) {
+      $aux[] = array('socket' => $socket['socket'],  "name" => $usuario);
+
+    }else{
+      $aux[] = $socket;
+    }
+  }
+  $clients = $aux;
+}
+function getSockets(){
+  $sockets = array();
+  global $clients;
+  foreach ($clients as $socket) {
+    $sockets[] = $socket['socket'];
+  }
+  return $sockets;
+}
 function send_message($msg)
 {
 	global $clients;
