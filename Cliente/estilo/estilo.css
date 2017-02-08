@@ -1,5 +1,5 @@
-body{
-	background-color: #EEECEC
+.row{
+	background-color: #c8e6c9 !important;
 }
 
 #cabecera{
@@ -21,10 +21,10 @@ body{
 textarea.materialize-textarea{
 
 	resize: vertical !important;
-	height: 360px !important;
+	height: 400px !important;
 	background-color: #EEECEC !important;
 }
 
-input.validate{
-	
+body{
+	background-color: #c8e6c9 !important;
 }
