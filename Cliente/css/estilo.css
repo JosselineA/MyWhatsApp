@@ -1,3 +1,6 @@
+.row{
+	background-color: #c8e6c9 !important;
+}
 
 #cabecera{
 	margin: 0;
@@ -12,8 +15,4 @@
 
 	font-size: 23px;
 	text-align: center;
-}
-
-body{
-	background-color: #c8e6c9;
 }
