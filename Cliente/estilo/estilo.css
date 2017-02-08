@@ -1,0 +1,30 @@
+body{
+	background-color: #EEECEC
+}
+
+#cabecera{
+	margin: 0;
+}
+
+#chat_logo{
+	height: 65px;
+	width: 120px;
+}
+
+#contactos{
+
+	font-size: 23px;
+	text-align: center;
+	float: left;
+}
+
+textarea.materialize-textarea{
+
+	resize: vertical !important;
+	height: 360px !important;
+	background-color: #EEECEC !important;
+}
+
+input.validate{
+	
+}
