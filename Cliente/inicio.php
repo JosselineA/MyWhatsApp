@@ -29,17 +29,24 @@
 	<div class="row">
 
 		<div id="Contacts" class="col s3 green lighten-4">
-		 		<div class="collection green darken-1">
-		        <a href="#!" class="collection-item green lighten-5">
-		        <h6>Ernesto</h6>   
-		        </a>
-		        <a href="#!" class="collection-item green lighten-5">
-		        <h6>Javier</h6>
-		        </a>
-		        <a href="#!" class="collection-item green lighten-5">
-		        <h6>Edgardo</h6>
-		        </a>
-		      	</div>
+				<ul class="collection">
+			    <li class="collection-item avatar green lighten-4">
+			    <i class="material-icons circle green">perm_identity</i>
+			    <span class="title">Ernesto :v</span>
+			      
+			    <a href="#!" class="secondary-content"><i class="material-icons">info</i></a>
+			    </li>
+			    <li class="collection-item avatar green lighten-4">
+			    <i class="material-icons circle green">perm_identity</i>
+			    <span class="title">Javier </span>
+			    <a href="#!" class="secondary-content"><i class="material-icons">info</i></a>
+			    </li>
+			    <li class="collection-item avatar green lighten-4">
+			    <i class="material-icons circle green">perm_identity</i>
+			    <span class="title">Edgardo :v</span>
+			    <a href="#!" class="secondary-content"><i class="material-icons">info</i></a>
+			    </li>
+			  </ul>
 
 		</div>
 			
