@@ -64,14 +64,18 @@
 
 			<div class="col s9 green lighten-4">
 
+							<!--Mostar los mensajes-->
+							<div id="bandeja">
+								<ul class="collection estilito">
+							       <div class="chip izquierdo"><img src="imagenes/hombre.png" alt="Contact Person">contacto</div>
+							    </ul>
+							    <ul class="collection estilito">
+							       <div class="chip derecho"><img src="imagenes/mujer.png" alt="Contact Person">contacto</div>
+							    </ul>
+
+							</div>
+
 						    <form>
-
-
-						          <textarea   class="materialize-textarea"></textarea>
-						          <label for="textarea1"></label>
-
-
-
 						      <!--Comienza el envio de mensaje-->
 
 
@@ -106,7 +110,7 @@
 </html>
 <script language="javascript" type="text/javascript">
 $(document).ready(function(){
-	document.getElementById('divChat').style.display = "none";
+	document.getElementById('divLogin').style.display = "none";
   //create a new WebSocket object.
   var wsUri = "ws://192.168.0.12:9000/MyWhatsApp/Servidor/server.php";
   websocket = new WebSocket(wsUri);

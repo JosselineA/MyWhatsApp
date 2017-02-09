@@ -13,3 +13,21 @@
 	font-size: 23px;
 	text-align: center;
 }
+
+#bandeja{
+	background-color: #F4F3F3;
+	height: 470px;
+	overflow: scroll;
+}
+
+.izquierdo{
+float: left;
+}
+
+.derecho{
+float: right;
+}
+
+.estilito{
+	border: none;
+}
