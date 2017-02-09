@@ -1,15 +1,17 @@
-html,
-#login {
+html,body {
     height: 100%;
+      margin: auto;
 }
-html {
-    display: table;
-    margin: auto;
-}
+
 #login {
-    display: table-cell;
-    vertical-align: middle;
+  position: absolute;
+top: 50%;
+left: 50%;
+transform: translate(-50%, -50%);
 }
 .margin {
   margin: 0 !important;
+}
+.no-show{
+  display:none !important;
 }

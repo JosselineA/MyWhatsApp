@@ -1,12 +1,12 @@
 
 <?php
 
-	$host = 'localhost'; //host
+	$host = '192.168.0.12'; //host
 	$port = '9000'; //port
 	$null = NULL; //null var
 
 	$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-	//socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
+	socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
 	socket_bind($socket, 0, $port);
 	socket_listen($socket);
 
@@ -64,17 +64,23 @@
 					$response_text = mask(json_encode(array('type'=> 'sucess')));
 					echo "sendSuccess";
 					send_message_toUser($response_text, $changed_socket); //send data
-
-					break;
+					$response_text = mask(json_encode(array('type'=> 'setAllUser',"arreglo" => getUsuarios())));
+					send_message($response_text);
+					break 3;
+				case "getAllUser":
+					$response_text = mask(json_encode(array('type'=> 'setAllUser',"arreglo" => getUsuarios())));
+					echo "sendUsuarios";
+					send_message_toUser($response_text, $changed_socket); //send data
+					break 3;
 			}
 
 			//prepare data to be sent to client
 		//	$response_text = mask(json_encode(array('type'=>'usermsg', 'name'=>$user_name, 'message'=>$user_message, 'color'=>$user_color)));
 		//	send_message($response_text); //send data
-			break 2; //exist this loop
+			//break 2; //exist this loop
 		}
 
-		$buf = @socket_read($changed_socket, 1024, PHP_NORMAL_READ);
+/*$buf = @socket_read($changed_socket, 1024, PHP_NORMAL_READ);
 		if ($buf === false) { // check disconnected client
 			// remove client for $clients array
 			$found_socket = array_search($changed_socket, $clients);
@@ -84,7 +90,7 @@
 			//notify all users about disconnected connection
 			$response = mask(json_encode(array('type'=>'system', 'message'=>$ip.' disconnected')));
 			send_message($response);
-		}
+		}*/
 	}
 
 
@@ -147,9 +153,21 @@ function getSockets(){
   }
   return $sockets;
 }
+function getUsuarios(){
+  $nombres = array();
+  global $clients;
+	$number = array("0","1","2","3","4","5","6","7","8","9");
+  foreach ($clients as $socket) {
+		if(str_replace($number,"",$socket['name']) != ""){
+			$nombres[] = $socket['name'];
+		}
+
+  }
+  return $nombres;
+}
 function send_message($msg)
 {
-	global $clients;
+	$clients = getSockets();
 	foreach($clients as $changed_socket)
 	{
 		@socket_write($changed_socket,$msg,strlen($msg));

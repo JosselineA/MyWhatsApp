@@ -1,4 +1,4 @@
-.row{
+.fondo{
 	background-color: #c8e6c9 !important;
 }
 
@@ -25,6 +25,6 @@ textarea.materialize-textarea{
 	background-color: #EEECEC !important;
 }
 
-body{
+.colorDiv{
 	background-color: #c8e6c9 !important;
 }
