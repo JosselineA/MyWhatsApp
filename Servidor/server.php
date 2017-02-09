@@ -72,12 +72,15 @@
 					echo "sendUsuarios";
 					send_message_toUser($response_text, $changed_socket); //send data
 					break 3;
-			}
+				case "sentMessageTo":
+					$toUser = $tst_msg->toUser;
 
-			//prepare data to be sent to client
-		//	$response_text = mask(json_encode(array('type'=>'usermsg', 'name'=>$user_name, 'message'=>$user_message, 'color'=>$user_color)));
-		//	send_message($response_text); //send data
-			//break 2; //exist this loop
+					$response_text = mask(json_encode(array('type'=> 'setAllUser',"arreglo" => getUsuarios())));
+					echo "sendUsuarios";
+					send_message_toUser($response_text, getUserSocket($toUser)); //send data
+
+					break 3;
+			}
 		}
 
 /*$buf = @socket_read($changed_socket, 1024, PHP_NORMAL_READ);
@@ -182,7 +185,16 @@ function send_message_toUser($msg,$socket)
 
 	return true;
 }
-
+function getUserSocket($toUser){
+	$sockets;
+  global $clients;
+  foreach ($clients as $socket) {
+		if($socket['name'] == $toUser){
+				return $socket['name'];
+		}
+  }
+  return null;
+}
 //Unmask incoming framed message
 function unmask($text) {
 	$length = ord($text[1]) & 127;

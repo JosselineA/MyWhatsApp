@@ -151,11 +151,11 @@ $(document).ready(function(){
 			type: "getAllUser"
 			};
 			websocket.send(JSON.stringify(al));
-			alert("send getakk")
+			//alert("send getakk")
 			return;
     }
 		if(type == 'setAllUser'){
-			alert ("mensaje2")
+			//alert ("mensaje2")
 			$("#listaUsuarios").empty();
 			$.each( msg.arreglo, function( key, value ) {
 				var aux = "<li class='collection-item avatar green lighten-4'>";
@@ -165,6 +165,12 @@ $(document).ready(function(){
 				$("#listaUsuarios").append(aux)
 			});
 			return;
+		}
+		if(type == 'messageFrom'){
+			 var fromUser = msg.fromUser;
+			 var message = msg.message;
+
+
 		}
 
   };
