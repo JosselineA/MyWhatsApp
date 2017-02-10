@@ -16,7 +16,7 @@
 	<div id="divLogin" class="dark cyan"  style="height:100%;width:100%">
 		<div id="login-page"  class="row">
 	    <div id="login"  class="col s3 z-depth-6 card-panel">
-	      <form class="login-form">
+	      <div class="login-form">
 	        <div class="row">
 	          <div class="input-field col s12 center">
 	            <img src="img/logo3.png" alt="" class="responsive-img valign profile-image-login">
@@ -35,7 +35,7 @@
 	          </div>
 	        </div>
 
-	      </form>
+	      </div>
 	    </div>
 	  </div>
 	</div>
@@ -63,19 +63,13 @@
 			</div>
 
 			<div class="col s9 green lighten-4">
-
+				<input style="display:none" id="usuarioChat" value="" type="text" />
 							<!--Mostar los mensajes-->
 							<div id="bandeja">
-								<ul class="collection estilito">
-							       <div class="chip izquierdo"><img src="imagenes/hombre.png" alt="Contact Person">contacto</div>
-							    </ul>
-							    <ul class="collection estilito">
-							       <div class="chip derecho"><img src="imagenes/mujer.png" alt="Contact Person">contacto</div>
-							    </ul>
 
 							</div>
 
-						    <form>
+
 						      <!--Comienza el envio de mensaje-->
 
 
@@ -84,13 +78,13 @@
 
 
 								    <!--No olvides el botón prro :v-->
-								    <button id="btnEnviar" class="btn waves-effect waves-light" type="submit" name="action">enviar
+								    <a id="btnEnviar" class="btn waves-effect waves-light"  name="action">enviar
 									    <i class="material-icons right">send</i>
-									</button>
+									</a>
 
 
 
-						    </form>
+
 
 				</div>
 
@@ -103,17 +97,53 @@
 
 
 	</div>
-  <div style="display: none;" id="divSecret">
+  <div  style="display: none;" id="divSecret">
 
   </div>
 </body>
 </html>
 <script language="javascript" type="text/javascript">
+var chatsAlmacenados =  new Array();
+function setChat(a) {
+	var id = document.getElementById("usuarioChat");
+	var b;
+	if(id.getAttribute("value") != ""){
+		b = id.getAttribute("value")+"Div";
+		document.getElementById(b).style.display = "none";
+	}
+	document.getElementById(a+"Div").style.display = "";
+	id.setAttribute('value',a);
+
+}
+
 $(document).ready(function(){
-	document.getElementById('divLogin').style.display = "none";
+	document.getElementById('divChat').style.display = "none";
+
   //create a new WebSocket object.
   var wsUri = "ws://192.168.0.12:9000/MyWhatsApp/Servidor/server.php";
   websocket = new WebSocket(wsUri);
+
+
+	$("#btnEnviar").click(function (){
+		var to = document.getElementById("usuarioChat").value;
+		var from = document.getElementById("secretSocket").value;
+		var msg1 =  document.getElementById("first_name2").value;
+		document.getElementById("first_name2").value = "";
+		//prepare json data
+		var mesg = {
+		type: "sentMessageTo",
+		msg : msg1,
+		toUser: to,
+		fromUser: from
+		};
+		//convert and send data to server
+		websocket.send(JSON.stringify(mesg));
+
+		var a = "<ul class='collection estilito'><div class='chip derecho'>"
+		a+= "<img src='imagenes/hombre.png' alt='Contact Person'>"+msg1+"</div></ul>";
+		$("#"+to+"Div").append(a);
+	});
+
 
   $('#entrar').click(function(){ //use clicks message send button
 
@@ -123,9 +153,9 @@ $(document).ready(function(){
       alert("Enter your Name please!");
       return;
     }
-
-    var id = document.getElementById("secretSocket").value;
-
+		var codigoUser = document.getElementById("secretSocket");
+    var id = codigoUser.value;
+		codigoUser.setAttribute('value',myname+"");
 
     //prepare json data
     var msg = {
@@ -141,7 +171,7 @@ $(document).ready(function(){
   websocket.onmessage = function(ev) {
     var msg = JSON.parse(ev.data); //PHP sends Json data
     var type = msg.type; //message type
-		alert("Mensaje de tipo: "+type)
+		//alert("Mensaje de tipo: "+type)
     if(type == 'id')
     {
       $('#divSecret').append("<input type='text' id='secretSocket' value='"+msg.id+"'  name=''>");
@@ -161,26 +191,54 @@ $(document).ready(function(){
 		if(type == 'setAllUser'){
 			//alert ("mensaje2")
 			$("#listaUsuarios").empty();
+			var nombreUsuario =  document.getElementById("secretSocket").value;
+
 			$.each( msg.arreglo, function( key, value ) {
-				var aux = "<li class='collection-item avatar green lighten-4'>";
+				if(nombreUsuario != value){
+
+
+				var aux = "<li id=\""+value+"Li\" onclick='setChat(\""+value+"\")' class='collection-item hov avatar green lighten-4'>";
 				aux += "<i class='material-icons circle green'>perm_identity</i>";
 				aux += "<span class='title'>"+value+"</span>";
 				aux += "<a href='#!' class='secondary-content'><i class='material-icons'>info</i></a></li>";
 				$("#listaUsuarios").append(aux)
+				var idU = value+"Div";
+				var div = "<div id=\""+idU+"\" style='hight:100%;width:100%'><h1 class='nombreChat'>"+value+"</h1></div>";
+				if(document.getElementById(idU) == null){
+					$("#bandeja").append(div);
+					document.getElementById(idU).style.display = "none";
+				}
+
+				}
 			});
 			return;
 		}
 		if(type == 'messageFrom'){
-			 var fromUser = msg.fromUser;
-			 var message = msg.message;
+			 var fromUser = msg.from;
+			 var message = msg.msg;
 
+			 var a = "<ul class='collection estilito'>";
+			 a += "<div class='chip izquierdo'><img src='imagenes/mujer.png' alt='Contact Person'>"+message+"</div></ul>"
+			 setChat(fromUser);
+			 $("#"+fromUser+"Div").append(a);
+
+			 return;
+		}
+		if(type == 'usuarioOff'){
+			var usuario =  msg.usuario;
+			$("#"+usuario+"Div").remove();
+			$("#"+usuario+"Li").remove();
+			var nameIn = document.getElementById("usuarioChat").value;
+			if(nameIn == usuario){
+				document.getElementById("usuarioChat").setAttribute('value',"");
+			}
 
 		}
 
   };
 
-  /*websocket.onerror = function(ev){$('#message_box').append("<div class=\"system_error\">Error Occurred - "+ev.data+"</div>");};
-  websocket.onclose   = function(ev){$('#message_box').append("<div class=\"system_msg\">Connection Closed</div>");}; */
+  websocket.onerror = function(ev){};
+  websocket.onclose   = function(ev){};
 });
 
 

@@ -21,20 +21,14 @@
 		//Checamos nuevas conexiones por el socket principal
 		if (in_array($socket, $changed)) {
 			$socket_new = socket_accept($socket); //accpet new socket
-			echo "Nuevo cliente";
+			echo "Nuevo cliente conectado \n";
 			$header = socket_read($socket_new, 1024); //read data sent by the socket
 			perform_handshaking($header, $socket_new, $host, $port); //perform websocket handshake
 
 			socket_getpeername($socket_new, $ip); //get ip address of connected socket
-			//$response = mask(json_encode(array('type'=>'system', 'message'=>$ip.' connected'))); //prepare json data
-			//send_message($response); //notify all users about new connection
-
-
-
 			$clients[] = array('socket' => $socket_new, 'name' => ++$contador+""); //add socket to client array
-
 			$response_text = mask(json_encode(array('type'=> 'id','id'=>$contador)));
-			echo "mensaje enviado";
+
 			send_message_toUser($response_text, $socket_new); //send data
 
 
@@ -48,91 +42,60 @@
 		//check for any incomming data
 		while(socket_recv($changed_socket, $buf, 1024, 0) >= 1)
 		{
-			echo "recibiendo data";
 			$received_text = unmask($buf); //unmask data
 			$tst_msg = json_decode($received_text); //json decode
 			/*$user_name = $tst_msg->name; //sender name
 			$user_message = $tst_msg->message; //message text
 			$user_color = $tst_msg->color; //color*/
+			if (isset($tst_msg -> type) ){
+				switch($tst_msg->type){
+					case "setID":
+						$id = $tst_msg-> i;
+						$usuario = $tst_msg->name;
+						setUsuario($id,$usuario);
 
-			switch($tst_msg->type){
-				case "setID":
-					$id = $tst_msg-> i;
-					$usuario = $tst_msg->name;
-					setUsuario($id,$usuario);
+						$response_text = mask(json_encode(array('type'=> 'sucess')));
+					echo "sendSuccess a usuario: ".$usuario."\n";
+						send_message_toUser($response_text, $changed_socket); //send data
+						$response_text = mask(json_encode(array('type'=> 'setAllUser',"arreglo" => getUsuarios())));
+						send_message($response_text);
+						break 3;
+					case "getAllUser":
+						$response_text = mask(json_encode(array('type'=> 'setAllUser',"arreglo" => getUsuarios())));
+						echo "sendListaUsuarios \n";
+						send_message_toUser($response_text, $changed_socket); //send data
+						break 3;
+					case "sentMessageTo":
+						$toUser = $tst_msg->toUser;
+						$fromUser = $tst_msg->fromUser;
+						$messageT = $tst_msg->msg;
 
-					$response_text = mask(json_encode(array('type'=> 'sucess')));
-					echo "sendSuccess";
-					send_message_toUser($response_text, $changed_socket); //send data
-					$response_text = mask(json_encode(array('type'=> 'setAllUser',"arreglo" => getUsuarios())));
-					send_message($response_text);
-					break 3;
-				case "getAllUser":
-					$response_text = mask(json_encode(array('type'=> 'setAllUser',"arreglo" => getUsuarios())));
-					echo "sendUsuarios";
-					send_message_toUser($response_text, $changed_socket); //send data
-					break 3;
-				case "sentMessageTo":
-					$toUser = $tst_msg->toUser;
+						$response_text = mask(json_encode(array('type'=> 'messageFrom','from' => $fromUser, 'msg' => $messageT)));
 
-					$response_text = mask(json_encode(array('type'=> 'setAllUser',"arreglo" => getUsuarios())));
-					echo "sendUsuarios";
-					send_message_toUser($response_text, getUserSocket($toUser)); //send data
+						send_message_toUser($response_text, getUserSocket($toUser)); //send data
+						echo $fromUser." sendMessageTo: ".$toUser."\n";
+						break 3;
+				}
+      }
 
-					break 3;
-			}
 		}
 
-/*$buf = @socket_read($changed_socket, 1024, PHP_NORMAL_READ);
+$buf = @socket_read($changed_socket, 1024, PHP_NORMAL_READ);
 		if ($buf === false) { // check disconnected client
-			// remove client for $clients array
-			$found_socket = array_search($changed_socket, $clients);
-			socket_getpeername($changed_socket, $ip);
-			unset($clients[$found_socket]);
 
+			$nameU = deleteCliente($changed_socket);
+	//		socket_shutdown($changed_socket, 2);
+		//	socket_close($changed_socket);
 			//notify all users about disconnected connection
-			$response = mask(json_encode(array('type'=>'system', 'message'=>$ip.' disconnected')));
+			echo "El usuario ".$nameU." ha salido";
+			$response = mask(json_encode(array('type'=>'usuarioOff', 'usuario' => $nameU)));
 			send_message($response);
-		}*/
+		}
 	}
 
 
-
-	/*//Checa cada uno de los clientes
-	foreach ($changed as $changed_socket) {
-
-		//Verifica si se espera recibir datos del cliente
-		while(socket_recv($changed_socket, $buf, 1024, 0) >= 1)
-		{
-			socket_getpeername($socket_new, $ip);
-
-			$received_text = unmask($buf); //unmask data
-			$tst_msg = json_decode($received_text); //json decode
-			$user_name = 2; //sender name
-			$to_user_name = $tst_msg->toUser
-			$user_message = $tst_msg->message; //message text
-			$user_color = $tst_msg->color; //color
-
-			//prepare data to be sent to client
-			$response_text = mask(json_encode(array('type'=>'usermsg', 'name'=>$user_name, 'message'=>$user_message, 'color'=>$user_color)));
-			send_message($response_text); //send data
-			break 2; //exit this loop
-		}
-
-		$buf = @socket_read($changed_socket, 1024, PHP_NORMAL_READ);
-		if ($buf === false) { // check disconnected client
-			// remove client for $clients array
-			$found_socket = array_search($changed_socket, $clients);
-			socket_getpeername($changed_socket, $ip);
-			unset($clients[$found_socket]);
-
-			//notify all users about disconnected connection
-			$response = mask(json_encode(array('type'=>'system', 'message'=>$ip.' disconnected')));
-			send_message($response);
-		}
-	}*/
 }
-
+echo "fin";
 socket_close($socket);
 function setUsuario($id,$usuario){
   global $clients;
@@ -147,6 +110,23 @@ function setUsuario($id,$usuario){
     }
   }
   $clients = $aux;
+}
+function deleteCliente($socketP){
+  global $clients;
+  $aux = array();
+	$name ="";
+  foreach ($clients as $socket) {
+
+    if ($socket['socket'] === $socketP) {
+      echo "borrado";
+			$name = $socket['name'];
+
+    }else{
+      $aux[] = $socket;
+    }
+  }
+  $clients = $aux;
+	return $name;
 }
 function getSockets(){
   $sockets = array();
@@ -185,11 +165,24 @@ function send_message_toUser($msg,$socket)
 
 	return true;
 }
+
 function getUserSocket($toUser){
 	$sockets;
   global $clients;
   foreach ($clients as $socket) {
 		if($socket['name'] == $toUser){
+				return $socket['socket'];
+		}
+  }
+
+  return null;
+}
+function getUser($so){
+	$sockets;
+  global $clients;
+  foreach ($clients as $socket) {
+		if($socket['socket'] == $so){
+
 				return $socket['name'];
 		}
   }
