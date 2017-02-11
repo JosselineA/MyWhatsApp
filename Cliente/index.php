@@ -56,7 +56,7 @@
 		 </nav>
 
 		<div class="row fondo"  style="height:86%;margin-bottom:0!important">
-			<div id="Contacts" class="col l3 hide-on-med-and-down green lighten-4">
+			<div style="height:100%;overflow-y: scroll;" id="Contacts" class="col l3 hide-on-med-and-down green lighten-4">
 					<ul class="collection" id="listaUsuarios" style="border:none">
 				  </ul>
 			</div>
@@ -140,7 +140,7 @@ $(document).ready(function(){
 	document.getElementById('divChat').style.display = "none";
 
   //create a new WebSocket object.
-  var wsUri = "ws://192.168.1.74:9000/MyWhatsApp/Servidor/server.php";
+  var wsUri = "ws://192.168.1.67:9000/MyWhatsApp/Servidor/server.php";
   websocket = new WebSocket(wsUri);
 
 
@@ -151,6 +151,10 @@ $(document).ready(function(){
 		}
 		var from = document.getElementById("secretSocket").value;
 		var msg1 =  document.getElementById("first_name2").value;
+		if(msg1 == ""){
+			
+			return;
+		}
 		document.getElementById("first_name2").value = "";
 		//prepare json data
 		var mesg = {
@@ -173,11 +177,20 @@ $(document).ready(function(){
     var myname = document.getElementById("usuario").value;
 
     if(myname == ""){ //empty name?
-      alert("Enter your Name please!");
+      alert("Ingrese un nombre por favor");
       return;
     }
-		var id = document.getElementById("secretSocket").value;
+    if(/\s/g.test(myname)){
+    	alert("El nombre no debe contener espacios");
+     	return;
+    }else{
+    	if(/^\d+$/.test(myname)){
+    		alert("Debe ingresar al menos una letra en el nombre");
+    		return;
+    	}
+    }
   
+		var id = document.getElementById("secretSocket").value;
 	
     //prepare json data
     var msg = {
@@ -230,7 +243,7 @@ $(document).ready(function(){
 				var aux2 = "<li id=\""+value+"LiP\" onclick='setChat(\""+value+"\")' class='collection-item avatar'style='background-color: transparent!important'>";
 				aux2 += "<a><div class='row'><div class='col s3'><img src='imagenes/hombre.png' alt=''  class='circle icon-lis'> </div>";
 				aux2 += "<div class='col s9'><h4 style='color:gray' class='title'>"+value+"</h4></div></div></a>";
-				aux2 += "</li>";
+				aux2 += "</li><div class='row'></div>";
 				$("#mobile-demo").append(aux2)
 				
 

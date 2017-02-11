@@ -1,7 +1,7 @@
 
 <?php
 
-	$host = '192.168.1.74'; //host
+	$host = '192.168.1.67'; //host
 	$port = '9000'; //port
 	$null = NULL; //null var
 
@@ -55,7 +55,7 @@
 							$response_text = mask(json_encode(array('type'=> 'sucess','name'=>$usuario)));							
 							send_message_toUser($response_text, $changed_socket); //send data
 							//Se actualiza la lista de usuarios en el cliente
-							echo "setAll";
+							echo "se ha mandado la lista de usuarios\n";
 							$response_text = mask(json_encode(array('type'=> 'setAllUser',"arreglo" => getUsuarios())));
 							send_message($response_text);
 						}else{
