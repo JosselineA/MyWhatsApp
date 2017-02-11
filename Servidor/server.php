@@ -3,30 +3,39 @@
 
 	$host = '192.168.1.67'; //host
 	$port = '9000'; //port
-	$null = NULL; //null var
-
+	
+	 //dominio, tipo, protocolo 
 	$socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-	socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
+	// socket, nivel de protocolo socket, opcion de socket (informa si las direccionaes locales pueden ser rechazadas)
+ 	socket_set_option($socket, SOL_SOCKET, SO_REUSEADDR, 1);
+ 	//enlaza el socket al puerto
 	socket_bind($socket, 0, $port);
+	//escuha las conexiones del socket
 	socket_listen($socket);
-
+	// Sirve para darle un id al cliente  
 	$contador = 1;
 	$clients = array(array('socket'=>$socket,'name'=>""));
+	//El while esta escuchando posibles conexiones
 	while(true){
-		//Realizamos una copia de los clientes ya que serán modificados en el siguiente método
+		//Realizamos una copia de los sockets 
 		$changed = getSockets();
 		//Checa durante 10 segundos si algun cliente se quiere conectar y los almacena en el array $changed
 		socket_select($changed, $null, $null, 0, 10);
 
 		//Checamos nuevas conexiones por el socket principal
 		if (in_array($socket, $changed)) {
+			//Socket accept nos regresa un nuevo recurso  socket para entablar la comunicacion con el cliente.
+			//entidad que representa al socket que esta conectado
 			$socket_new = socket_accept($socket); 
 			echo "Nuevo cliente conectado \n";
+			//Lee desde un recurso socket el código del websocket
 			$header = socket_read($socket_new, 1024); 
+			//El Handshake es el puente desde HTTP a WS
 			perform_handshaking($header, $socket_new, $host, $port); 
 
-			socket_getpeername($socket_new, $ip); 
+			//socket_getpeername($socket_new, $ip); 
 			$clients[] = array('socket' => $socket_new, 'name' => ++$contador+""); 
+			//Se codifica el mensaje con la función mask
 			$response_text = mask(json_encode(array('type'=> 'id','id'=>$contador)));
 
 			send_message_toUser($response_text, $socket_new); 
@@ -34,14 +43,14 @@
 			$found_socket = array_search($socket, $changed);
 			unset($changed[$found_socket]);
 		}
-		
+		//Pasamos por todos los sockets para recibir informacion
 	foreach ($changed as $changed_socket) {
 
 		//Checa si un socket envia información
 		while(socket_recv($changed_socket, $buf, 1024, 0) >= 1)
 		{
-			$received_text = unmask($buf); //unmask data
-			$tst_msg = json_decode($received_text); //json decode
+			$received_text = unmask($buf); //descodifica el mensaje
+			$tst_msg = json_decode($received_text); //decodifica el json
 
 			if (isset($tst_msg->type) ){
 				switch($tst_msg->type){
@@ -50,6 +59,7 @@
 						$usuario = $tst_msg->name;
 						
 						if(checkUserName($usuario)){
+							//cambiamos el id contador por el nombre del usuario del chta
 							setUsuario($id,$usuario);
 							echo "El usuario ".$usuario." ha entrado al chat\n";
 							$response_text = mask(json_encode(array('type'=> 'sucess','name'=>$usuario)));							
@@ -57,6 +67,7 @@
 							//Se actualiza la lista de usuarios en el cliente
 							echo "se ha mandado la lista de usuarios\n";
 							$response_text = mask(json_encode(array('type'=> 'setAllUser',"arreglo" => getUsuarios())));
+							//envia el mensaje a todos los clientes
 							send_message($response_text);
 						}else{
 							$response_text = mask(json_encode(array('type'=> 'userExist')));							
@@ -75,7 +86,7 @@
 						$messageT = $tst_msg->msg;
 
 						$response_text = mask(json_encode(array('type'=> 'messageFrom','from' => $fromUser, 'msg' => $messageT)));
-
+						//getusersocket consigue el socket del cliente al que se le enviará el mensaje
 						send_message_toUser($response_text, getUserSocket($toUser)); //send data
 						echo "El usuario ".$fromUser." ha mandado un mensaje a  ".$toUser."\n";
 						break 3;
@@ -101,6 +112,7 @@ $buf = @socket_read($changed_socket, 1024, PHP_NORMAL_READ);
 }
 
 socket_close($socket);
+//Cambia el id número por el nombre
 function setUsuario($id,$usuario){
   global $clients;
   $aux = array();
@@ -155,6 +167,7 @@ function getUsuarios(){
   }
   return $nombres;
 }
+//Manda el mensaje a todos los clientes
 function send_message($msg)
 {
 	$clients = getSockets();
@@ -164,6 +177,7 @@ function send_message($msg)
 	}
 	return true;
 }
+//Manda un mensaje al cliente especificado
 function send_message_toUser($msg,$socket)
 {
 
@@ -172,7 +186,7 @@ function send_message_toUser($msg,$socket)
 
 	return true;
 }
-
+//Consigue el socket que tiene asignado el nombre de usuario $toUser
 function getUserSocket($toUser){
 	$sockets;
   global $clients;
@@ -196,6 +210,7 @@ function checkUserName($user){
 
   return true;
 }
+//Consigue el nombre asignado del socket que pasamos en el parametro
 function getUser($so){
 	$sockets;
   global $clients;
