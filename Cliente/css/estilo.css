@@ -7,7 +7,12 @@
 	height: 65px;
 	width: 120px;
 }
-
+.icon-lis{
+	
+	height: 100%;
+	width: 100%;
+	color: gray;
+}
 #contactos{
 
 	font-size: 23px;
@@ -16,10 +21,17 @@
 
 #bandeja{
 	background-color: #F4F3F3;
-	height: 470px;
+	height: 80%;
 	overflow-y: scroll;
 }
 
+@media only screen and (max-width: 768px) {
+    /* For mobile phones: */
+    #bandeja {
+        height: 60%;
+        overflow-y: scroll;
+    }
+}
 .izquierdo{
 float: left;
 }
