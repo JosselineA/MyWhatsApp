@@ -139,8 +139,9 @@ $(document).ready(function(){
 	   $(".button-collapse").sideNav({closeOnClick: true});
 	document.getElementById('divChat').style.display = "none";
 
-  //create a new WebSocket object.
+  //Guarda la direccion del socket servidor
   var wsUri = "ws://192.168.1.67:9000/MyWhatsApp/Servidor/server.php";
+  //creamos un websocket
   websocket = new WebSocket(wsUri);
 
 
@@ -202,7 +203,7 @@ $(document).ready(function(){
     websocket.send(JSON.stringify(msg));
   });
 
-  //#### Message received from server?
+  
   websocket.onmessage = function(ev) {
     var msg = JSON.parse(ev.data); //PHP sends Json data
     var type = msg.type; //message type
